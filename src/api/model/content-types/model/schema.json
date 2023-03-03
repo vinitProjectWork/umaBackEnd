@@ -11,14 +11,14 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "name": {
+      "type": "string"
+    },
     "brand": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::brand.brand",
       "inversedBy": "models"
-    },
-    "name": {
-      "type": "string"
     }
   }
 }

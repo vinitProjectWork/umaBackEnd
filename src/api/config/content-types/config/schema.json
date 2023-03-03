@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "configs",
+  "info": {
+    "singularName": "config",
+    "pluralName": "configs",
+    "displayName": "config"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "minOrderValue": {
+      "type": "float"
+    },
+    "tax": {
+      "type": "decimal"
+    },
+    "deliveryRange": {
+      "type": "text"
+    }
+  }
+}
