@@ -18,11 +18,11 @@
     "originalPrice": {
       "type": "float"
     },
-    "discountedPrice": {
-      "type": "float"
+    "model_qty": {
+      "type": "integer"
     },
-    "tax": {
-      "type": "float"
+    "model_moq": {
+      "type": "integer"
     },
     "description": {
       "type": "string"
@@ -45,11 +45,23 @@
       "target": "api::product-media.product-media",
       "mappedBy": "product"
     },
+    "deliveryChargesOnline": {
+      "type": "decimal"
+    },
+    "deliveryChargesOffline": {
+      "type": "decimal"
+    },
     "category": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::category.category",
-      "inversedBy": "product"
+      "inversedBy": "products"
+    },
+    "invoiceProductName": {
+      "type": "string"
+    },
+    "hsnSAC": {
+      "type": "string"
     }
   }
 }

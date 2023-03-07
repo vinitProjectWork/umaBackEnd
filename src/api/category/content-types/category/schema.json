@@ -38,9 +38,9 @@
       "target": "api::sub-category.sub-category",
       "mappedBy": "category"
     },
-    "product": {
+    "products": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "oneToMany",
       "target": "api::product.product",
       "mappedBy": "category"
     }
