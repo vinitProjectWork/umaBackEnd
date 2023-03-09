@@ -1,6 +1,8 @@
 'use strict';
 
 const { sendOTP } = require("../../../helper/helper");
+const utils = require('@strapi/utils');
+const { ValidationError } = utils.errors;
 
 /**
  * A set of functions called "actions" for `otp`
@@ -15,6 +17,9 @@ module.exports = {
   verifyOTP: async (ctx, next) => {
     const { otp, mobileNumber } = ctx.request.body;
     try {
+      if(otp.toString().length < 6){
+        throw new ValidationError('OTP must be 6 number.');
+      }
       const user = await strapi.query('plugin::users-permissions.user').findOne({
         where: {
           provider: "local",
@@ -25,7 +30,7 @@ module.exports = {
         throw new ValidationError('Invalid identifier or password');
       } else {
         strapi.entityService.update('plugin::users-permissions.user', user.id, {
-          data: { otp: "" }
+          data: { otp: "0" }
         });
       }
       return ctx.send({
