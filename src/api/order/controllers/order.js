@@ -1,5 +1,7 @@
 'use strict';
 
+const utils = require('@strapi/utils');
+const { ValidationError } = utils.errors;
 /**
  * order controller
  */
@@ -12,7 +14,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     //     const { id } = ctx.request.params
     //     let oldEntries = await strapi.entityService.findOne('api::order.order',id);
     //     const data = ctx.request.body.data
-    //     if (oldEntries?.OrderStatus === "Pending" && data?.OrderStatus === "Placed"){ 
+    //     if (oldEntries?.OrderStatus === "Pending" && data?.OrderStatus === "Placed"){
     //         data?.orderDetails?.map(async item => {
     //             const product = await strapi.entityService.findOne("api::product.product", item.productid)
     //             if(product){
@@ -29,7 +31,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     //                         }
     //                     }
     //                     return modelDetail
-                        
+
     //                 })
     //                 await strapi.entityService.update("api::product.product", product.id,{
     //                     data: { ...product,modelDetailUpdated:JSON.stringify(models)}
@@ -58,4 +60,27 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     //     return { data:entries, pagination };
     // },
 
- }));
+    async cartDetails(ctx) {
+
+        try {
+
+            const entries = await strapi.db.query('api::order.order').findOne({
+                where: {
+                    $and: [
+                        {
+                            OrderStatus: 'cart',
+                        },
+                        {
+                            users_permissions_user: { id: ctx.state.user.id },
+                        },
+                    ],
+                },
+            });
+            return { data: entries };
+
+        } catch (error) {
+            throw new ValidationError('Error in Feching Cart Data.');
+        }
+    },
+
+}));
