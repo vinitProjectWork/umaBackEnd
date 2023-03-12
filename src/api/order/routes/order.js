@@ -27,6 +27,11 @@ const myExtraRoutes = [
         path: "/cartDetails",
         handler: "order.cartDetails",
     },
+    {
+        method: "POST",
+        path: "/checkOut",
+        handler: "order.checkOut",
+    },
 ];
 
 module.exports = customRouter(defaultRouter, myExtraRoutes);

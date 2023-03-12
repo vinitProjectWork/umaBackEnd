@@ -82,6 +82,7 @@ module.exports = (plugin) => {
         }
 
     }
+
     plugin.controllers.auth.register = async (ctx) => {
         const pluginStore = await strapi.store({ type: 'plugin', name: 'users-permissions' });
 
@@ -168,6 +169,7 @@ module.exports = (plugin) => {
             flag: true
         });
     }
+
     plugin.controllers.auth.block = async (ctx) => {
 
         try {
@@ -182,6 +184,7 @@ module.exports = (plugin) => {
             throw new ApplicationError('Something Went Wrong, Please try again in sometime');
         }
     }
+
     plugin.controllers.auth.approve = async (ctx) => {
         try {
             await strapi.entityService.update("plugin::users-permissions.user", ctx.request.body.id, {

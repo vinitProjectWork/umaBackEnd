@@ -1,7 +1,15 @@
 'use strict';
 
 const utils = require('@strapi/utils');
+const Configure = require('../../../helper/ccavenueHelper');
 const { ValidationError } = utils.errors;
+const working_key = '733AFA0C5841F518CA31820444CED94E';	//Put in the 32-Bit key shared by CCAvenues.
+const merchant_id = 2114311;
+const access_code = 'AVXT04KC71AU20TXUA';
+const ccav = new Configure({
+    merchant_id,
+    working_key
+});
 /**
  * order controller
  */
@@ -80,6 +88,49 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
 
         } catch (error) {
             throw new ValidationError('Error in Feching Cart Data.');
+        }
+    },
+
+    async checkOut(ctx) {
+        try {
+            const user = ctx.state.user
+            const { data: { userId } } = ctx.request.body
+            
+            if (user.id === userId) {
+                console.log(merchant_id);
+                const orderParams = {
+                    merchant_id,
+                    order_id: '16547968646351654684786',
+                    amount: 100,
+                    currency: 'INR',
+                    redirect_url: 'http://www.localhost:3001/success-payment',
+                    cancel_url: 'http://www.localhost:3001/failure-payment',
+                    // redirect_url: 'https://umaenterpriseindia.com/success-payment',
+                    // cancel_url: 'https://umaenterpriseindia.com/failure-payment',
+                    language: 'EN',
+                    billing_name: user.shop_name,
+                    billing_address: user.address1 + user.address2,
+                    billing_city: user.city,
+                    billing_state: user.states,
+                    billing_zip: user.zipcode,
+                    billing_country: 'India',
+                    billing_email: user.email,
+                    delivery_name: user.shop_name,
+                    delivery_address: user.address1 + user.address2,
+                    delivery_city: user.city,
+                    delivery_state: user.states,
+                    delivery_zip: user.zipcode,
+                    delivery_country: 'India'
+                };
+                const encRequest = ccav.encrypt(orderParams);
+                const form = `<form id="nonseamless" method="post" name="redirect" action="https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="${encRequest}"><input type="hidden" name="access_code" id="access_code" value="${access_code}"></form>`
+                return form;
+                // return { encRequest, access_code }
+            } else {
+                throw new ValidationError('Requeset body is not proper.');
+            }
+        } catch (error) {
+            throw new ValidationError('Error in Payment Gateway.');
         }
     },
 
