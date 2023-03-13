@@ -135,7 +135,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                     billing_country: 'India',
                     billing_email: user.email,
                     delivery_name: user.shop_name,
-                    delivery_address: user.address1 + user.address2,
+                    delivery_address: user.address1 + ", " + user.address2,
                     delivery_city: user.city,
                     delivery_state: user.states,
                     delivery_zip: user.zipcode,
@@ -144,7 +144,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                 const encRequest = ccav.encrypt(orderParams);
                 const form = `<form id="nonseamless" method="post" name="redirect" action="https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="${encRequest}"><input type="hidden" name="access_code" id="access_code" value="${access_code}"></form>`
                 return form;
-                // return { encRequest, access_code }
             } else {
                 throw new ValidationError('Requeset body is not proper.');
             }
