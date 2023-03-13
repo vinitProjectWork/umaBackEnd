@@ -3,9 +3,9 @@
 const utils = require('@strapi/utils');
 const Configure = require('../../../helper/ccavenueHelper');
 const { ValidationError } = utils.errors;
-const working_key = '733AFA0C5841F518CA31820444CED94E';	//Put in the 32-Bit key shared by CCAvenues.
+const working_key = '0568AF4045203557F9CDA0B2621762EB';	//Put in the 32-Bit key shared by CCAvenues.
 const merchant_id = 2114311;
-const access_code = 'AVXT04KC71AU20TXUA';
+const access_code = 'AVDZ04KC71BA82ZDAB';
 const ccav = new Configure({
     merchant_id,
     working_key
@@ -92,7 +92,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     },
 
     async orderHistory(ctx) {
-
         try {
 
             const entries = await strapi.db.query('api::order.order').findMany({
@@ -118,7 +117,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
         try {
             const user = ctx.state.user
             const { data: { userId } } = ctx.request.body
-
             if (user.id === userId) {
                 console.log(merchant_id);
                 const orderParams = {
@@ -126,13 +124,11 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                     order_id: '16547968646351654684786',
                     amount: 100,
                     currency: 'INR',
-                    redirect_url: 'http://www.localhost:3001/success-payment',
-                    cancel_url: 'http://www.localhost:3001/failure-payment',
-                    // redirect_url: 'https://umaenterpriseindia.com/success-payment',
-                    // cancel_url: 'https://umaenterpriseindia.com/failure-payment',
+                    redirect_url: 'https://api.umaenterpriseindia.com/api/payment-success',
+                    cancel_url: 'https://api.umaenterpriseindia.com/api/payment-failure',
                     language: 'EN',
                     billing_name: user.shop_name,
-                    billing_address: user.address1 + user.address2,
+                    billing_address: user.address1 +", " + user.address2,
                     billing_city: user.city,
                     billing_state: user.states,
                     billing_zip: user.zipcode,
@@ -157,4 +153,15 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
         }
     },
 
+    async paymentSuccess(ctx){
+        const reqBody = ctx.request.body;
+        const decRequest = ccav.decrypt(reqBody.encResp);
+        console.log(decRequest);
+        ctx.redirect('https://umaenterpriseindia.com/success-payment')
+
+    },
+    async paymentFailure(ctx) {
+
+        ctx.redirect('https://umaenterpriseindia.com/failure-payment')
+    },
 }));

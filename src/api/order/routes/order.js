@@ -37,6 +37,16 @@ const myExtraRoutes = [
         path: "/checkOut",
         handler: "order.checkOut",
     },
+    {
+        method: "POST",
+        path: "/payment-success",
+        handler: "order.paymentSuccess",
+    },
+    {
+        method: "POST",
+        path: "/payment-failure",
+        handler: "order.paymentFailure",
+    },
 ];
 
 module.exports = customRouter(defaultRouter, myExtraRoutes);
