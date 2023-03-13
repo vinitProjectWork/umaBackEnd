@@ -9,8 +9,20 @@ const { sendOTP } = require('../../helper/helper');
 const { sanitize } = utils;
 const { ApplicationError, ValidationError } = utils.errors;
 
+const registerSchema = yup.object({
+    email: yup.string().email().required(),
+    username: yup.string().required(),
+    password: yup.string().required(),
+});
 
+const validateRegisterBody = validateYupSchema(registerSchema);
 
+const sanitizeUser = (user, ctx) => {
+    const { auth } = ctx.state;
+    const userSchema = strapi.getModel('plugin::users-permissions.user');
+
+    return sanitize.contentAPI.output(user, userSchema, { auth });
+};
 module.exports = (plugin) => {
 
     plugin.routes['content-api'].routes.push({
@@ -150,18 +162,17 @@ module.exports = (plugin) => {
             confirmed: false,
         };
 
-        const user = await getService('user').add(newUser);
-
-        const sanitizedUser = await sanitizeUser(user, ctx);
+        const user = await strapi.plugin('users-permissions').service('user').add(newUser);
 
         if (settings.email_confirmation) {
+
+            const sanitizedUser = await sanitizeUser(user, ctx);
             try {
-                await getService('user').sendConfirmationEmail(sanitizedUser);
+                await strapi.plugin('users-permissions').service('user').sendConfirmationEmail(sanitizedUser);
             } catch (err) {
                 throw new ApplicationError(err.message);
             }
 
-            return ctx.send({ user: sanitizedUser });
         }
 
         return ctx.send({
@@ -174,7 +185,7 @@ module.exports = (plugin) => {
 
         try {
             await strapi.entityService.update("plugin::users-permissions.user", ctx.request.body.id, {
-                data: { blocked: true, confirm: false }
+                data: { blocked: true, confirmed: false }
             })
             return ctx.send({
                 message: 'User Block Sucessfully',
@@ -188,7 +199,7 @@ module.exports = (plugin) => {
     plugin.controllers.auth.approve = async (ctx) => {
         try {
             await strapi.entityService.update("plugin::users-permissions.user", ctx.request.body.id, {
-                data: { confirm: true, blocked: false }
+                data: { confirmed: true, blocked: false }
             })
             return ctx.send({
                 message: 'User Approved Sucessfully',
