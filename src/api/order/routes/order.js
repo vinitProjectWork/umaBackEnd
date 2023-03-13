@@ -28,6 +28,11 @@ const myExtraRoutes = [
         handler: "order.cartDetails",
     },
     {
+        method: "GET",
+        path: "/orderHistory",
+        handler: "order.orderHistory",
+    },
+    {
         method: "POST",
         path: "/checkOut",
         handler: "order.checkOut",

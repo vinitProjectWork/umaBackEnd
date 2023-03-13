@@ -91,11 +91,34 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
         }
     },
 
+    async orderHistory(ctx) {
+
+        try {
+
+            const entries = await strapi.db.query('api::order.order').findMany({
+                where: {
+                    $and: [
+                        {
+                            OrderStatus: { $ne: 'cart' },
+                        },
+                        {
+                            users_permissions_user: { id: ctx.state.user.id },
+                        },
+                    ],
+                },
+            });
+            return { data: entries };
+
+        } catch (error) {
+            throw new ValidationError('Error in Feching Order History Data.');
+        }
+    },
+
     async checkOut(ctx) {
         try {
             const user = ctx.state.user
             const { data: { userId } } = ctx.request.body
-            
+
             if (user.id === userId) {
                 console.log(merchant_id);
                 const orderParams = {
