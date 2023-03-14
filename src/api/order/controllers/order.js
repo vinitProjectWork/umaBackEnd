@@ -189,8 +189,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                 ],
             },
         });
-        console.log(cartData);
-        console.log(resJson.merchant_param1);
         if (cartData?.id == resJson.merchant_param1) {
             const dataToStore = {
                 order_id: resJson.order_id,
@@ -203,7 +201,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                 status_code: resJson.status_code,
                 status_message: resJson.status_message,
             }
-            console.log(dataToStore)
             await strapi.entityService.update("api::order.order", cartData?.id, {
                 data: { ...cartData, OrderStatus: resJson.order_status, paymentData: dataToStore }
             })
@@ -213,7 +210,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
 
     },
     async paymentFailure(ctx) {
-
         ctx.redirect('https://umaenterpriseindia.com/failure-payment')
     },
 }));
