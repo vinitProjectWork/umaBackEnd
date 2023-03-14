@@ -35,13 +35,43 @@
         "InTransit",
         "Delivered",
         "Cancelled"
-      ]
+      ],
+      "default": "cart"
     },
     "deliveryCharges": {
       "type": "decimal"
     },
     "productAmount": {
       "type": "decimal"
+    },
+    "paymentData": {
+      "type": "json"
+    },
+    "paymentStatus": {
+      "type": "string"
+    },
+    "paymentDate": {
+      "type": "string"
+    },
+    "pickUpDate": {
+      "type": "string"
+    },
+    "confirmDate": {
+      "type": "string"
+    },
+    "orderDate": {
+      "type": "string"
+    },
+    "deliveredDate": {
+      "type": "string"
+    },
+    "orderType": {
+      "type": "enumeration",
+      "enum": [
+        "COD",
+        "PrePayment"
+      ],
+      "default": "COD"
     }
   }
 }
