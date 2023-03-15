@@ -34,7 +34,8 @@
         "InProcess",
         "InTransit",
         "Delivered",
-        "Cancelled"
+        "Cancelled",
+        "Payment Failed"
       ],
       "default": "cart"
     },

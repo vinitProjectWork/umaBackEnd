@@ -117,7 +117,6 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
         try {
             const user = ctx.state.user
             const { data: { userId } } = ctx.request.body
-            console.log("Here")
             const cartData = await strapi.db.query('api::order.order').findOne({
                 where: {
                     $and: [
@@ -130,35 +129,44 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                     ],
                 },
             });
+            const configData = await strapi.db.query('api::config.config').findMany();
+            console.log(configData);
             if (user.id === userId && Object.keys(cartData).length > 0 && cartData?.orderAmount > 0) {
-                const orderParams = {
-                    merchant_id,
-                    order_id: cartData?.id,
-                    amount: cartData?.orderAmount,
-                    currency: 'INR',
-                    redirect_url: 'https://api.umaenterpriseindia.com/api/payment-success',
-                    cancel_url: 'https://api.umaenterpriseindia.com/api/payment-failure',
-                    language: 'EN',
-                    billing_name: user.shop_name,
-                    billing_address: user.address1 + ", " + user.address2,
-                    billing_city: user.city,
-                    billing_state: user.states,
-                    billing_zip: user.zipcode,
-                    billing_country: 'India',
-                    billing_email: user.email,
-                    billing_tel: user.username,
-                    delivery_tel: user.username,
-                    delivery_name: user.shop_name,
-                    delivery_address: user.address1 + ", " + user.address2,
-                    delivery_city: user.city,
-                    delivery_state: user.states,
-                    delivery_zip: user.zipcode,
-                    delivery_country: 'India',
-                    merchant_param1: cartData?.id
-                };
-                const encRequest = ccav.encrypt(orderParams);
-                const form = `<form id="nonseamless" method="post" name="redirect" action="https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="${encRequest}"><input type="hidden" name="access_code" id="access_code" value="${access_code}"></form>`
-                return form;
+                if (configData.length > 0) {
+                    const orderParams = {
+                        merchant_id,
+                        order_id: cartData?.id,
+                        amount: cartData?.orderAmount,
+                        currency: 'INR',
+                        redirect_url: 'https://api.umaenterpriseindia.com/api/payment-success',
+                        cancel_url: 'https://api.umaenterpriseindia.com/api/payment-failure',
+                        language: 'EN',
+                        billing_name: user.shop_name,
+                        billing_address: user.address1 + ", " + user.address2,
+                        billing_city: user.city,
+                        billing_state: user.states,
+                        billing_zip: user.zipcode,
+                        billing_country: 'India',
+                        billing_email: user.email,
+                        billing_tel: user.username,
+                        delivery_tel: user.username,
+                        delivery_name: user.shop_name,
+                        delivery_address: user.address1 + ", " + user.address2,
+                        delivery_city: user.city,
+                        delivery_state: user.states,
+                        delivery_zip: user.zipcode,
+                        delivery_country: 'India',
+                        merchant_param1: cartData?.id
+                    };
+                    const encRequest = ccav.encrypt(orderParams);
+                    const form = `<form id="nonseamless" method="post" name="redirect" action="https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="${encRequest}"><input type="hidden" name="access_code" id="access_code" value="${access_code}"></form>`
+
+                    await strapi.entityService.update("api::order.order", cartData?.id, {
+                        data: { ...cartData, OrderStatus: 'Pending' }
+                    })
+                    return form;
+
+                }
             } else {
                 throw new ValidationError('Requeset body is not proper.');
             }
@@ -181,7 +189,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
             where: {
                 $and: [
                     {
-                        OrderStatus: 'cart',
+                        OrderStatus: 'Pending',
                     },
                     {
                         id: resJson.order_id,
@@ -202,7 +210,7 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
                 status_message: resJson.status_message,
             }
             await strapi.entityService.update("api::order.order", cartData?.id, {
-                data: { ...cartData, OrderStatus: resJson.order_status, paymentData: dataToStore }
+                data: { ...cartData, OrderStatus: 'Placed', paymentData: dataToStore }
             })
             ctx.redirect('https://umaenterpriseindia.com/success-payment')
         }
@@ -211,5 +219,45 @@ module.exports = createCoreController('api::order.order', ({ strapi }) => ({
     },
     async paymentFailure(ctx) {
         ctx.redirect('https://umaenterpriseindia.com/failure-payment')
+        const reqBody = ctx.request.body;
+        const decRequest = ccav.decrypt(reqBody.encResp);
+        const resJsonString = decRequest.split('&')
+        let resJson = {}
+        resJsonString.map(item => {
+            const keyValue = item.split('=');
+            resJson = { ...resJson, [keyValue[0]]: keyValue[1] }
+        })
+
+        const cartData = await strapi.db.query('api::order.order').findOne({
+            where: {
+                $and: [
+                    {
+                        OrderStatus: 'Pending',
+                    },
+                    {
+                        id: resJson.order_id,
+                    },
+                ],
+            },
+        });
+        if (cartData?.id == resJson.merchant_param1) {
+            const dataToStore = {
+                order_id: resJson.order_id,
+                tracking_id: resJson.tracking_id,
+                order_status: resJson.order_status,
+                bank_ref_no: resJson.bank_ref_no,
+                tracking_id: resJson.tracking_id,
+                payment_mode: resJson.payment_mode,
+                card_name: resJson.card_name,
+                status_code: resJson.status_code,
+                status_message: resJson.status_message,
+            }
+            await strapi.entityService.update("api::order.order", cartData?.id, {
+                data: { ...cartData, OrderStatus: 'Payment Failed', paymentData: dataToStore }
+            })
+            ctx.redirect('https://umaenterpriseindia.com/failure-payment')
+        }
+        ctx.redirect('https://umaenterpriseindia.com/failure-payment')
+
     },
 }));
