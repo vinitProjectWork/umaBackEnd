@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * address service
+ * awb-number service
  */
 
 const { createCoreService } = require('@strapi/strapi').factories;
 
-module.exports = createCoreService('api::address.address');
+module.exports = createCoreService('api::awb-number.awb-number');

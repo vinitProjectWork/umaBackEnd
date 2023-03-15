@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * address controller
+ * awb-number controller
  */
 
 const { createCoreController } = require('@strapi/strapi').factories;
 
-module.exports = createCoreController('api::address.address');
+module.exports = createCoreController('api::awb-number.awb-number');

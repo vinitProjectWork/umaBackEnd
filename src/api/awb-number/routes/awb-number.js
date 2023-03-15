@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * address router
+ * awb-number router
  */
 
 const { createCoreRouter } = require('@strapi/strapi').factories;
 
-module.exports = createCoreRouter('api::address.address');
+module.exports = createCoreRouter('api::awb-number.awb-number');

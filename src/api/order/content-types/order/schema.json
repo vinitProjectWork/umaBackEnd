@@ -73,6 +73,12 @@
         "PrePayment"
       ],
       "default": "COD"
+    },
+    "awb_number": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::awb-number.awb-number",
+      "mappedBy": "order"
     }
   }
 }

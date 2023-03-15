@@ -69,12 +69,6 @@
       "target": "api::order.order",
       "mappedBy": "users_permissions_user"
     },
-    "addresses": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::address.address",
-      "mappedBy": "users_permissions_user"
-    },
     "shop_name": {
       "type": "string",
       "required": true

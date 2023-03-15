@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "awb_numbers",
+  "info": {
+    "singularName": "awb-number",
+    "pluralName": "awb-numbers",
+    "displayName": "AWB Number"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "number": {
+      "type": "string"
+    },
+    "cod": {
+      "type": "boolean",
+      "default": false
+    },
+    "order": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::order.order",
+      "inversedBy": "awb_number"
+    }
+  }
+}
